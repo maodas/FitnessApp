@@ -23,6 +23,17 @@ class FitTrack(QWidget):
         self.kal_box = QLineEdit()
         self.kal_box.setPlaceholderText("Number of Burned Calories")
         
+        self.distance_box = QLineEdit()
+        self.distance_box.setPlaceholderText("Enter distance ran")
+
+        self.description = QLineEdit()
+        self.description.setPlaceholderText("Enter a description")
+
+        self.submit_btn = QPushButton("Submit")
+        self.add_btn = QPushButton("Add")
+        self.delete_btn = QPushButton("Delete")
+        self.clear_btn = QPushButton("Clear")
+        self.dark_mode = QCheckBox("Dark Mode")
              
     #Load Tables
     #Add Tables
