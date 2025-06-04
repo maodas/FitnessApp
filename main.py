@@ -43,7 +43,9 @@ class FitTrack(QWidget):
 
 
         self.table = QTableWidget()
-
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(["Id","Date","Calories","Distance","Description"])
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
@@ -86,11 +88,15 @@ class FitTrack(QWidget):
 
         self.col1.addLayout(btn_row1)
         self.col1.addLayout(btn_row2)
-        
-        self.master_layout.addLayout(self.col1)
-        self.setLayout(self.master_layout)
 
-                
+        self.col2.addWidget(self.canvas)
+        self.col2.addWidget(self.table)
+
+        
+        self.master_layout.addLayout(self.col1, 30)
+        self.master_layout.addLayout(self.col2, 70)
+        self.setLayout(self.master_layout)
+     
     #Load Tables
     #Add Tables
     #Delete Tables
@@ -100,6 +106,25 @@ class FitTrack(QWidget):
     #Reset
 
 #Initizaly my DB
+
+db=QSqlDatabase.addDatabase("QSQLITE")
+db.setDatabaseName("fitness.db")
+
+if not db.open():
+    QMessageBox.critical(None,"ERROR", "cannot open the Database")
+    exit(2)
+
+query = QSqlQuery()
+query.exec_("""
+            CREATE TABLE IF NOT EXIST fitness(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT,
+            calories REAL,
+            distance REAL,
+            description TEXT
+
+            )
+            """)
 
 if __name__ == "__main__":
     app = QApplication([])
