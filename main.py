@@ -1,6 +1,6 @@
 # Import
 from PyQt5.QtCore import Qt, QDate
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox, QTableWidget, QHeaderView, QCheckBox, QDateEdit, QLineEdit 
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QMessageBox, QTableWidget, QHeaderView, QCheckBox, QDateEdit, QLineEdit 
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 #
 import matplotlib.pyplot as plt 
@@ -17,10 +17,13 @@ class FitTrack(QWidget):
         super().__init__()
         self.settings()
         self.initUI()
+        self.button_click()
+
     #settings
     def settings(self):
         self.setWindowTitle("FitTrack")
         self.resize(800,600)
+
     #init UI
     def initUI(self):
         self.date_box = QDateEdit()
@@ -96,9 +99,60 @@ class FitTrack(QWidget):
         self.master_layout.addLayout(self.col1, 30)
         self.master_layout.addLayout(self.col2, 70)
         self.setLayout(self.master_layout)
+
+        self.load_table()
      
+    #Events
+    def button_click(self):
+        self.add_btn.clicked.connect(self.add_workout)
+
     #Load Tables
+    def load_table(self):
+        self.table.setRowCount(0)
+        db.open()
+        query = QSqlQuery("SELECT * FROM fitness ORDER BY date DESC")
+        row = 0
+        while query.next():
+            fit_id = query.value(0)
+            date = query.value(1)
+            calories = query.value(2)
+            distance = query.value(3)
+            description = query.value(4)
+
+            self.table.insertRow(row)
+            self.table.setItem(row, 0, QTableWidgetItem(str(fit_id)))
+            self.table.setItem(row, 1, QTableWidgetItem(date))
+            self.table.setItem(row, 2, QTableWidgetItem(str(calories)))
+            self.table.setItem(row, 3, QTableWidgetItem(str(distance)))
+            self.table.setItem(row, 4, QTableWidgetItem(description))
+
+            row += 1
+        db.close()
+
     #Add Tables
+    def add_workout(self):
+        date = self.date_box.date().toString("yyyy-MM-dd")
+        calories = self.kal_box.text()
+        distance = self.distance_box.text()
+        description = self.description.text()
+
+        query = QSqlQuery("""
+                        INSERT INTO fitness (date, calories, distance, description)
+                        VALUES (?, ?, ?, ?)    
+                        """)
+        query.addBindValue(date)
+        query.addBindValue(calories)
+        query.addBindValue(distance)
+        query.addBindValue(description)
+        query.exec_()
+
+        self.date_box.setDate(QDate.currentDate())
+        self.kal_box.clear()
+        self.distance_box.clear()
+        self.description.clear()
+
+        self.load_table()
+
     #Delete Tables
     #Calculate calories
     #Click
